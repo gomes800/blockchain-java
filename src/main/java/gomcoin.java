@@ -1,13 +1,32 @@
 import com.google.gson.GsonBuilder;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
+import java.security.Security;
 import java.util.ArrayList;
 
-public class Main {
+public class gomcoin {
 
     public static ArrayList<Block> blockchain = new ArrayList<Block>();
     public static int difficulty = 5;
+    public static Wallet walletA;
+    public static Wallet walletB;
 
     public static void main(String[] args) {
+
+        Security.addProvider(new BouncyCastleProvider());
+
+        walletA = new Wallet();
+        walletB = new Wallet();
+
+        System.out.println("Private and public keys:");
+        System.out.println(StringUtil.getStringFromKey(walletA.privateKey));
+        System.out.println(StringUtil.getStringFromKey(walletA.publicKey));
+
+        Transaction transaction = new Transaction(walletA.publicKey, walletB.publicKey, 5, null);
+        transaction.generateSignature(walletA.privateKey);
+
+        System.out.println("Is signature verified?");
+        System.out.println(transaction.verifySignature());
 
         blockchain.add(new Block("Hi im the first block", "0"));
         System.out.println("Trying to Mine block 1... ");
@@ -16,10 +35,6 @@ public class Main {
         blockchain.add(new Block("Yo im the second block", blockchain.get(blockchain.size() - 1).hash));
         System.out.println("Trying to Mine block 2... ");
         blockchain.get(1).mineBlock(difficulty);
-
-        blockchain.add(new Block("Hello im the third block", blockchain.get(blockchain.size() - 1).hash));
-        System.out.println("Trying to Mine block 3... ");
-        blockchain.get(2).mineBlock(difficulty);
 
         System.out.println("\nBlockchain is valid: " + isChainValid());
 
